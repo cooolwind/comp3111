@@ -32,12 +32,40 @@
             </script>
 </head>
 <body ng-controller="TodoCtrl">
+<nav class="navbar navbar-default" id="nav">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">QueChat</a>
+    </div>
 
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+     
+        <li class="navbar-text">&nbsp; Current Visitors: {{data1}}</li>
+
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User's List <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li ng-repeat="name in namelist"><span>{{name.user_name}} &nbsp;&nbsp;<a ng-show="name.user_id" href="https://facebook.com/{{name.user_id}}">Contact</a></span></li>
+          </ul>
+        </li>
+      </ul>
+    
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
 	<div class = "header">
 	<font size="10"></i>  Questions for {{roomId}}</font>&nbsp;
 
 	<!--
-
 	<a ng-class="{selected: location.path() == '/newechos'}" class="btn btn-primary" href="#/newechos">New Echos</a>
 	<a ng-class="{selected: location.path() == '/tags'}" class="btn btn-success" href="#/tags">Tags</a>
 	<a ng-class="{selected: location.path() == '/users'}" class="btn btn-info" href="#/users">Users</a>
@@ -59,9 +87,8 @@
 <br>
 </div>
 
-<br>
-<br><br>
 
+<br><br>
 <div class = "imagegroup">
 <input id="imagepicker"
   uploadcare-widget
@@ -93,7 +120,7 @@ ng-model="input.wholeMsg" autofocus></textarea>
 
 
 <div class="list-group" id="todo-list">
-	<span class="list-group-item" ng-repeat="todo in todos | filter:input | questionFilter:maxQuestion" ng-class="{completed: todo.completed, editing: todo == editedTodo}">
+	<span class="list-group-item" ng-repeat="todo in todos | filter:input.wholeMsg | questionFilter:maxQuestion" ng-class="{completed: todo.completed, editing: todo == editedTodo}">
 		<h4 class="list-group-item-heading" ng-switch on="todo.headLastChar">
 			<span class="label label-danger" ng-show="todo.new">New</span>
 			<span class="badge">{{todo.echo}}</span>
@@ -102,13 +129,16 @@ ng-model="input.wholeMsg" autofocus></textarea>
 			<span ng-switch-when="!" class="glyphicon glyphicon-ice-lolly"></span>
 			<span ng-class="{completed: todo.completed}"><span ng-class="{completed: todo.completed}"><span ng-bind-html = "todo.head|smilies"></span></span></span> 
             <span ng-show="todo.quote.length - 1" ng-class="{completed: todo.completed}"><br><br><blockquote style="font-size: 80%"><footer><i class="fa fa-quote-left"></i> {{todo.quote}}</footer></blockquote></span>
-   
+            <br><br><span ng-show="todo.youtube.length" ng-class="{completed: todo.completed}"><iframe width="420" height="315" src= {{sce(todo.youtube)}}></iframe></span>
             <span ng-show="todo.image.length" ng-class="{completed: todo.completed}"><br><br><img src = {{todo.image}}><br><br></img></span>
 		</h4>
 
 <p class="list-group-item-text">
             <p class="list-group-item-text"><span ng-bind-html="todo.trustedDesc"></span>
-            <div style="font-size: 11px !important; color: #aaaaaa;">created: {{todo.timestamp | fromNow}}</div><span ng-app="angularMoment" am-time-ago="todo.timestamp"></span>
+            <div style="font-size: 11px !important; color: #aaaaaa;">created: {{todo.timestamp | fromNow}}<br>posted by: {{todo.name}} 
+            <a ng-show="todo.id" href ="https://facebook.com/{{todo.id}}"><img src="https://graph.facebook.com/{{todo.id}}/picture/?type=square&return_ssl_resources=1" alt="{{todo.name}}" /></a>
+            </div>
+            <span ng-app="angularMoment" am-time-ago="todo.timestamp"></span>
 			<span ng-show="todo.tags">tags: <span ng-repeat = "n in todo.tags"> <a href="#"><span class="label label-success" ng-click = "movetags(n)">{{n}}</span></a></span></span></p>
 
 			<button class="btn btn-default btn-xs glyphicon glyphicon-hand-up" ng-click="addEcho(todo)" ng-init="todo.chlid='Like'; todo.hasLiked=false">{{todo.chlid}}</button>
@@ -121,17 +151,24 @@ ng-model="input.wholeMsg" autofocus></textarea>
             <button class="btn btn-default btn-xs glyphicon glyphicon-tags" ng-click="popbox =!popbox">Comment</button>
 
             <div class="reply-group" ng-show="popbox">
-
-            <span class="reply-group-addon" smilies-selector="input.wholeReply" smilies-placement="right" smilies-title="Smilies" id = "emoji"></span>
-            <textarea type="text" id="reply-todo" class="form-control" placeholder="Write comment"ng-model="input.wholeReply" autofocus></textarea>
-            <span class="reply-group-btn">
-            <button class="btn btn-default" id= "Reply" type="button" ng-click="addReply()">Reply</button></span>
-
+            <span class="reply-group-addon" smilies-selector="todo.input.wholeReply" smilies-placement="right" smilies-title="Smilies" id = "emoji"></span>
+            <textarea type="text" id="reply-todo" class="form-control" placeholder="Write comment"ng-model="todo.input.wholeReply" autofocus></textarea>
+            <button class="btn btn-default" id= "Reply" type="button" ng-click="addReply(todo)">Reply</button>
             </div>            
             
 			<button ng-show="isAdmin" class="btn btn-default btn-xs glyphicon glyphicon-check" ng-click="toggleCompleted(todo)">Toggle Completed</button>
 			&nbsp;
 			<button ng-show="isAdmin" class="btn btn-default btn-xs glyphicon glyphicon-trash" aria-hidden="true" ng-click="removeTodo(todo)">Del</button>
+
+			<p class ="reply-group" ng-show="todo.reply">
+			 <br>
+			 <span class="list-group-item" ng-repeat="m in todo.reply" id="replylist" ><span ng-show="$index==0" ><span class = "badge"><i class="fa fa-star"></i> Best Reply</span></span>&nbsp;&nbsp;
+       <a ng-show="m.id" href ="https://facebook.com/{{todo.id}}"><img src="https://graph.facebook.com/{{m.id}}/picture/?type=square&return_ssl_resources=1" alt="{{m.name}}" /></a>
+       {{m.name}}: {{m.msg}}&nbsp;&nbsp;
+       <span style="font-size: 11px !important; color: #aaaaaa;">created: {{m.timestamp | fromNow}}</span>
+       <button class="btn btn-default btn-xs glyphicon glyphicon-hand-up" ng-click="addEcho(m)" ng-init="m.chlid='Like'; m.hasLiked=false">{{m.chlid}}</button>
+       <td class="text-right text-nowrap"><span class="badge">{{m.echo}}</span></td></span>
+			</p>
 		</span>
 	</div>
 
@@ -140,7 +177,6 @@ ng-model="input.wholeMsg" autofocus></textarea>
 
 
 	<div id="toTop" class="btn btn-info"><span class="fa fa-arrow-up" ng-click = "toTop()">Back to Top</span></div>
-
 
 
 
@@ -155,7 +191,7 @@ ng-model="input.wholeMsg" autofocus></textarea>
 <script src="js/directives/angular-uploadcare.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.0-beta.1/angular-sanitize.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" charset="utf-8"></script>
 <script src="https://ucarecdn.com/widget/2.5.5/uploadcare/uploadcare.min.js" charset="utf-8"></script>
 <!-- Ng storage 0.3.6  -->
 <script src="js/lib/ngStorage.min.js"></script>
@@ -168,7 +204,10 @@ ng-model="input.wholeMsg" autofocus></textarea>
 <script src="js/lib/moment.js"></script>
 <script src="js/filters/momentFilter.js"></script>
 
+<!-- jQuery library -->
 
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 </body>
 </html>
